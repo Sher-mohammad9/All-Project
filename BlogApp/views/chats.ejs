@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head.ejs') %>
+        <title>Home Page</title>
+     <%_ include("./partials/style.ejs")%>
+</head>
+
+<body>
+     <!-- Navber -->
+    <%- include('./partials/nav.ejs') %>
+<div class="container" style="margin-top: 40px;">
+    <div class="row" style="justify-content: center;">
+        <div class="col-sm-6 mb-3 mb-sm-0">
+          <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-12 mb-3 mb-sm-0" >
+                <img src="<%= locals?.chatUser?.profileImage %>" alt="Profile Picture" style="width: 50px; height: 50px; margin: 8px 0px 8px 0px;" class="rounded-circle">                
+                <a href="/app/chats-page" class="list-group-item list-group-item-action" style="display: inline; border: none; padding: 10px 10px 10px 10px"><%= locals?.chatUser?.name %></a>
+                <input id="user" value="<%= locals.user._id %>,<%= locals.chatUser._id %>" style="display: none;"/>
+            </div>
+        </div>
+          <% if(locals?.messages?.length > 0) { %>
+            <div id="messages">
+                <% locals?.messages.forEach(msg => { %>
+                <h5><%= msg.message %></h5>
+                <% }) %>    
+            </div>
+            <% } else { %>
+                <div id="messages">
+                </div>
+                <% } %>
+            </div>
+            <div class="row">
+                <div class="col-sm-10 mb-3 mb-sm-0" style="width: 66%;">  
+            <input type="text" style="width: 101%; margin-left: 8px; margin-bottom: 5px; border-radius: 5px;" id="message" placeholder="Lets Chats">
+          </div>
+          <div class="col-sm-2 mb-3 mb-sm-0" style="margin-left: -6px;">
+            <button class="btn btn-outline-success" style="padding: 2px 15px;" type="submit" id="sendBtn">Send</button>
+          </div>
+        </div>
+        </div>
+        </div>
+    </div>
+    </div>
+     
+    <script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+socket.on("message", (message)=>{
+const div = document.getElementById("messages");
+const h6 = document.createElement("h6");
+const textNode = document.createTextNode(message);
+h6.appendChild(textNode);
+div.appendChild(h6);
+})
+
+        const sendBtn = document.getElementById("sendBtn");
+        sendBtn.addEventListener("click", ()=>{
+            let userId = document.getElementById("user").value;
+            userId = userId.split(",")
+            const message = document.getElementById("message").value;
+            socket.emit("message", {message, userId});
+            document.getElementById("message").value = ""
+        })
+
+</script>
+
+<!-- script -->
+   <%- include("./partials/script.ejs") %>
+   
+</body>
+</html>
